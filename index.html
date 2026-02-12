@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pokédex Visual — Equipo (Añil 4.0) v4.3</title>
+  <title>Pokédex Visual — Equipo (Añil 4.0) v4.4</title>
   <style>
     :root{
       --bg:#0b1020; --panel:#121a33; --card:#0f1730; --muted:#a9b3d1; --text:#eef2ff;
@@ -127,7 +127,6 @@
     .card h3{margin:0; font-size:14px}
     .meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
 
-    /* ✅ Evitar texto cortado */
     .chip{
       font-size:11px; padding:4px 8px; border-radius:999px;
       border:1px solid var(--line);
@@ -262,7 +261,6 @@
     }
     .typePick:hover .type{ transform: translateY(-1px); }
 
-    /* Marcadores de selección */
     .typePick.selected1 .type{
       box-shadow: inset 0 0 0 2px rgba(124,92,255,.70), 0 0 0 3px rgba(124,92,255,.12);
     }
@@ -303,8 +301,8 @@
       <div class="brand">
         <div class="logo">⚡</div>
         <div class="title">
-          <h1>Pokédex Visual — Equipo (Añil 4.0) v4.3</h1>
-          <p>Detalle del equipo + Pokédex por tipos (selección por clic, sin menús).</p>
+          <h1>Pokédex Visual — Equipo (Añil 4.0) v4.4</h1>
+          <p>Pokédex por tipos: ahora funciona en “cadena” y Limpiar deja ambos vacíos.</p>
         </div>
       </div>
 
@@ -379,7 +377,6 @@
       moves:["Fuerza Lunar","Surf","Rayo Hielo","Paz Mental"] },
   ];
 
-  // ====== MOVES (ES -> TYPE) ======
   const MOVE_TYPE = {
     "Deslizador Grama":"grass","Mazazo":"grass","Desarme":"dark","Ida y Vuelta":"bug",
     "Dardos Dragón":"dragon","Sombra Vil":"ghost","Lanzallamas":"fire",
@@ -394,7 +391,6 @@
     "Fuerza Lunar":"fairy","Surf":"water","Paz Mental":"psychic"
   };
 
-  // ====== TIPOS + CHART ======
   const TYPES = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"];
   const TYPE_LABEL = {
     normal:"Normal", fire:"Fuego", water:"Agua", electric:"Eléctrico", grass:"Planta", ice:"Hielo",
@@ -403,24 +399,24 @@
   };
 
   const CHART = {
-    normal:  { super:[], half:["rock","steel"], zero:["ghost"] },
-    fire:    { super:["grass","ice","bug","steel"], half:["fire","water","rock","dragon"], zero:[] },
-    water:   { super:["fire","ground","rock"], half:["water","grass","dragon"], zero:[] },
-    electric:{ super:["water","flying"], half:["electric","grass","dragon"], zero:["ground"] },
-    grass:   { super:["water","ground","rock"], half:["fire","grass","poison","flying","bug","dragon","steel"], zero:[] },
-    ice:     { super:["grass","ground","flying","dragon"], half:["fire","water","ice","steel"], zero:[] },
-    fighting:{ super:["normal","ice","rock","dark","steel"], half:["poison","flying","psychic","bug","fairy"], zero:["ghost"] },
-    poison:  { super:["grass","fairy"], half:["poison","ground","rock","ghost"], zero:["steel"] },
-    ground:  { super:["fire","electric","poison","rock","steel"], half:["grass","bug"], zero:["flying"] },
-    flying:  { super:["grass","fighting","bug"], half:["electric","rock","steel"], zero:[] },
-    psychic: { super:["fighting","poison"], half:["psychic","steel"], zero:["dark"] },
-    bug:     { super:["grass","psychic","dark"], half:["fire","fighting","poison","flying","ghost","steel","fairy"], zero:[] },
-    rock:    { super:["fire","ice","flying","bug"], half:["fighting","ground","steel"], zero:[] },
-    ghost:   { super:["psychic","ghost"], half:["dark"], zero:["normal"] },
-    dragon:  { super:["dragon"], half:["steel"], zero:["fairy"] },
-    dark:    { super:["psychic","ghost"], half:["fighting","dark","fairy"], zero:[] },
-    steel:   { super:["ice","rock","fairy"], half:["fire","water","electric","steel"], zero:[] },
-    fairy:   { super:["fighting","dragon","dark"], half:["fire","poison","steel"], zero:[] }
+    normal:{super:[],half:["rock","steel"],zero:["ghost"]},
+    fire:{super:["grass","ice","bug","steel"],half:["fire","water","rock","dragon"],zero:[]},
+    water:{super:["fire","ground","rock"],half:["water","grass","dragon"],zero:[]},
+    electric:{super:["water","flying"],half:["electric","grass","dragon"],zero:["ground"]},
+    grass:{super:["water","ground","rock"],half:["fire","grass","poison","flying","bug","dragon","steel"],zero:[]},
+    ice:{super:["grass","ground","flying","dragon"],half:["fire","water","ice","steel"],zero:[]},
+    fighting:{super:["normal","ice","rock","dark","steel"],half:["poison","flying","psychic","bug","fairy"],zero:["ghost"]},
+    poison:{super:["grass","fairy"],half:["poison","ground","rock","ghost"],zero:["steel"]},
+    ground:{super:["fire","electric","poison","rock","steel"],half:["grass","bug"],zero:["flying"]},
+    flying:{super:["grass","fighting","bug"],half:["electric","rock","steel"],zero:[]},
+    psychic:{super:["fighting","poison"],half:["psychic","steel"],zero:["dark"]},
+    bug:{super:["grass","psychic","dark"],half:["fire","fighting","poison","flying","ghost","steel","fairy"],zero:[]},
+    rock:{super:["fire","ice","flying","bug"],half:["fighting","ground","steel"],zero:[]},
+    ghost:{super:["psychic","ghost"],half:["dark"],zero:["normal"]},
+    dragon:{super:["dragon"],half:["steel"],zero:["fairy"]},
+    dark:{super:["psychic","ghost"],half:["fighting","dark","fairy"],zero:[]},
+    steel:{super:["ice","rock","fairy"],half:["fire","water","electric","steel"],zero:[]},
+    fairy:{super:["fighting","dragon","dark"],half:["fire","poison","steel"],zero:[]}
   };
 
   function mult(atk, def){
@@ -430,11 +426,13 @@
     if(r.half.includes(def)) return 0.5;
     return 1;
   }
+
   function multDefAgainst(def1, def2, atk){
-    return mult(atk, def1) * mult(atk, def2);
+    const m1 = def1 ? mult(atk, def1) : 1;
+    const m2 = def2 ? mult(atk, def2) : 1;
+    return m1 * m2;
   }
 
-  // ====== UI / STATE ======
   const pokeCache = new Map();
   const evoCache = new Map();
 
@@ -454,9 +452,9 @@
   let state = { list: structuredClone(DATA), filtered: structuredClone(DATA), selected: DATA[0] };
   let activeTab = "detail";
 
-  // ✅ Siempre 2 tipos en Pokédex
-  let pdType1 = "steel";
-  let pdType2 = "flying";
+  // ✅ Ahora sí: limpiar deja ambos vacíos
+  let pdType1 = "";
+  let pdType2 = "";
 
   const norm = (s) => (s ?? "").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
   const uniq = (arr) => Array.from(new Set(arr)).filter(Boolean).sort((a,b)=>a.localeCompare(b,"es"));
@@ -665,30 +663,25 @@
 
   function offensiveStrong(atk1, atk2){
     const strong = [];
+    if(!atk1 && !atk2) return strong;
     for(const def of TYPES){
-      const m1 = mult(atk1, def);
-      const m2 = mult(atk2, def);
+      const m1 = atk1 ? mult(atk1, def) : 0;
+      const m2 = atk2 ? mult(atk2, def) : 0;
       const best = Math.max(m1, m2);
       if(best === 2) strong.push(def);
     }
     return strong;
   }
 
-  // ✅ Pokédex: selección por clic SIN vacíos y con la regla que pediste
   function renderPokedex(){
-    subTitle.textContent = "Pokédex de tipos (clic para Tipo 1 / Tipo 2)";
-
-    // Seguridad: siempre 2 tipos válidos y distintos
-    if(!pdType1) pdType1 = "steel";
-    if(!pdType2) pdType2 = "flying";
-    if(pdType1 === pdType2) pdType2 = "water";
+    subTitle.textContent = "Pokédex de tipos (cadena lineal)";
 
     rightPane.innerHTML = `
       <div class="box">
         <h4>Pokédex — Debilidades / resistencias / inmunidades</h4>
         <div class="hint">
-          Siempre hay <b>2 tipos</b>. Cada clic pone el nuevo tipo como <b>Tipo 1</b> y <b>mantiene Tipo 2</b>.
-          Si clicas el tipo que está como Tipo 2, se hace <b>swap</b> para que quede como Tipo 1.
+          <b>Cadena:</b> cuando ya hay 2 tipos, cada clic hace: <b>Tipo2 = Tipo1</b> y <b>Tipo1 = nuevo</b>.
+          <br>Botón <b>Limpiar</b> deja ambos vacíos.
         </div>
 
         <div class="pickedLine">
@@ -720,11 +713,23 @@
         btn.classList.toggle("selected1", t === pdType1);
         btn.classList.toggle("selected2", t === pdType2);
       });
-      showT1.innerHTML = typeBadge(pdType1);
-      showT2.innerHTML = typeBadge(pdType2);
+      showT1.innerHTML = pdType1 ? typeBadge(pdType1) : `<span class="hint">—</span>`;
+      showT2.innerHTML = pdType2 ? typeBadge(pdType2) : `<span class="hint">—</span>`;
     }
 
     function draw(){
+      const hasAny = !!pdType1 || !!pdType2;
+
+      if(!hasAny){
+        document.getElementById("pokedexOut").innerHTML = `
+          <div class="bucket">
+            <p class="bucketTitle">Resultado</p>
+            <div class="hint">Elige al menos un tipo para calcular.</div>
+          </div>
+        `;
+        return;
+      }
+
       const buckets = classifyDefense(pdType1, pdType2);
       const mk = (title, multKey, subtitle) => `
         <div class="bucket">
@@ -750,30 +755,36 @@
     }
 
     function pickType(t){
-      // si clicas el Tipo 1, no cambia (así evitas “parpadeos”)
-      if(t === pdType1) return;
-
-      // si clicas el Tipo 2: swap (para que el clic quede como Tipo 1)
-      if(t === pdType2){
-        const old1 = pdType1;
-        pdType1 = pdType2;
-        pdType2 = old1;
+      // si no hay Tipo 1 aún
+      if(!pdType1){
+        pdType1 = t;
         refreshPickStyles(); draw();
         return;
       }
 
-      // clic en un tipo nuevo: Tipo 1 = nuevo, Tipo 2 se mantiene (tu regla)
-      pdType1 = t;
-
-      // seguridad: nunca iguales
-      if(pdType1 === pdType2){
-        // elige fallback distinto
-        pdType2 = "flying";
-        if(pdType2 === pdType1) pdType2 = "water";
+      // si hay Tipo 1 pero no Tipo 2
+      if(pdType1 && !pdType2){
+        if(t === pdType1) return; // evitar duplicado
+        pdType2 = t;
+        refreshPickStyles(); draw();
+        return;
       }
 
-      refreshPickStyles();
-      draw();
+      // ya hay ambos: CADENA
+      if(pdType1 && pdType2){
+        if(t === pdType1) return; // opcional: ignorar click repetido
+        pdType2 = pdType1;
+        pdType1 = t;
+
+        // seguridad: no iguales
+        if(pdType1 === pdType2){
+          // no debería pasar por el return, pero por si acaso
+          pdType2 = "";
+        }
+
+        refreshPickStyles();
+        draw();
+      }
     }
 
     wrap.addEventListener("click", (e)=>{
@@ -783,9 +794,8 @@
     });
 
     clearBtn.addEventListener("click", ()=>{
-      // ✅ limpiar REAL: vuelve a un par válido y refresca
-      pdType1 = "steel";
-      pdType2 = "flying";
+      pdType1 = "";
+      pdType2 = "";
       refreshPickStyles();
       draw();
     });
@@ -807,7 +817,6 @@
     }
   }
 
-  // Import / Export JSON
   elExport.addEventListener("click", ()=>{
     const blob = new Blob([JSON.stringify(state.list, null, 2)], {type:"application/json"});
     const a = document.createElement("a");
