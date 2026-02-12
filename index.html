@@ -1,0 +1,738 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pokédex Visual — Equipo (Añil 4.0)</title>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121a33; --card:#0f1730; --muted:#a9b3d1; --text:#eef2ff;
+      --accent:#7c5cff; --accent2:#2dd4bf; --line:rgba(255,255,255,.10);
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:var(--font); color:var(--text);
+      background: radial-gradient(1200px 800px at 20% 10%, rgba(124,92,255,.25), transparent 60%),
+                  radial-gradient(900px 700px at 80% 30%, rgba(45,212,191,.18), transparent 55%),
+                  linear-gradient(180deg, #070a14, var(--bg));
+      min-height:100vh;
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,16,32,.78);
+      border-bottom:1px solid var(--line);
+    }
+    .wrap{max-width:1180px; margin:0 auto; padding:18px 16px;}
+    .topbar{
+      display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+    }
+    .brand{display:flex; gap:12px; align-items:center;}
+    .logo{
+      width:42px; height:42px; border-radius:14px;
+      background: linear-gradient(135deg, rgba(124,92,255,.95), rgba(45,212,191,.8));
+      box-shadow: var(--shadow);
+      display:grid; place-items:center;
+      font-weight:800;
+    }
+    .title h1{margin:0; font-size:18px; letter-spacing:.2px}
+    .title p{margin:2px 0 0; color:var(--muted); font-size:12px}
+
+    .controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    input, select, button{
+      font-family:inherit;
+      background: rgba(255,255,255,.06);
+      border:1px solid var(--line);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      outline:none;
+    }
+    input{min-width:260px}
+    select{min-width:190px}
+    button{cursor:pointer; transition:.15s transform, .15s opacity;}
+    button:hover{transform: translateY(-1px)}
+    button.primary{
+      background: linear-gradient(135deg, rgba(124,92,255,.9), rgba(124,92,255,.55));
+      border-color: rgba(124,92,255,.35);
+    }
+    button.ghost{background: transparent;}
+    main .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:14px;
+      padding:16px;
+      max-width:1180px;
+      margin:0 auto;
+    }
+    @media (max-width: 980px){
+      main .grid{grid-template-columns:1fr}
+    }
+
+    .panel{
+      background: rgba(18,26,51,.72);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+    }
+    .panel-head{
+      padding:14px 14px 10px;
+      border-bottom:1px solid var(--line);
+      display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
+    }
+    .panel-head h2{
+      margin:0; font-size:14px; letter-spacing:.3px; color:rgba(255,255,255,.92)
+    }
+    .panel-head small{color:var(--muted)}
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap:12px;
+      padding:14px;
+    }
+    @media (max-width: 560px){
+      .cards{grid-template-columns:1fr}
+      input{min-width:100%}
+      select{min-width:100%}
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(15,23,48,.92), rgba(15,23,48,.72));
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      padding:12px;
+      display:grid;
+      grid-template-columns: 76px 1fr;
+      gap:12px;
+      cursor:pointer;
+      transition: .16s transform, .16s border-color, .16s background;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(124,92,255,.35);
+      background: linear-gradient(180deg, rgba(15,23,48,.98), rgba(15,23,48,.75));
+    }
+    .sprite{
+      width:76px; height:76px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.06);
+      border:1px dashed rgba(255,255,255,.14);
+      display:grid; place-items:center;
+      overflow:hidden;
+    }
+    .sprite img{width:76px; height:76px; image-rendering: pixelated;}
+    .card h3{margin:0; font-size:14px}
+    .meta{display:flex; flex-wrap:wrap; gap:6px; margin-top:6px}
+    .chip{
+      font-size:11px; padding:4px 8px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.06);
+      color: rgba(255,255,255,.92);
+      white-space:nowrap;
+    }
+    .chip.dim{color: var(--muted)}
+    .types{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
+
+    /* Badge base para tipos */
+    .type{
+      font-size:11px; padding:4px 8px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(124,92,255,.12);
+    }
+
+    /* Colores por tipo (incluye tus requeridos) */
+    .type.type-grass   { background: rgba(34,197,94,.22);   border-color: rgba(34,197,94,.35); }   /* Planta verde */
+    .type.type-water   { background: rgba(56,189,248,.22);  border-color: rgba(56,189,248,.35); }  /* Agua azul claro */
+    .type.type-ghost   { background: rgba(168,85,247,.22);  border-color: rgba(168,85,247,.35); }  /* Fantasma morado */
+    .type.type-dragon  { background: rgba(30,64,175,.22);   border-color: rgba(30,64,175,.35); }   /* Dragón azul oscuro */
+    .type.type-ground  { background: rgba(202,138,4,.22);   border-color: rgba(202,138,4,.35); }   /* Tierra café claro */
+    .type.type-steel   { background: rgba(148,163,184,.22); border-color: rgba(148,163,184,.35); } /* Acero plateado */
+
+    /* Otros tipos opcionales por si aparecen */
+    .type.type-fire    { background: rgba(244,63,94,.22);   border-color: rgba(244,63,94,.35); }
+    .type.type-dark    { background: rgba(100,116,139,.22); border-color: rgba(100,116,139,.35); }
+    .type.type-flying  { background: rgba(125,211,252,.18); border-color: rgba(125,211,252,.30); }
+    .type.type-poison  { background: rgba(147,51,234,.20);  border-color: rgba(147,51,234,.32); }
+    .type.type-rock    { background: rgba(234,179,8,.18);   border-color: rgba(234,179,8,.30); }
+    .type.type-ice     { background: rgba(45,212,191,.18);  border-color: rgba(45,212,191,.30); }
+    .type.type-fairy   { background: rgba(251,113,133,.18); border-color: rgba(251,113,133,.30); }
+    .type.type-normal  { background: rgba(203,213,225,.16); border-color: rgba(203,213,225,.28); }
+    .type.type-fighting{ background: rgba(234,88,12,.18);   border-color: rgba(234,88,12,.30); }
+    .type.type-psychic { background: rgba(236,72,153,.18);  border-color: rgba(236,72,153,.30); }
+    .type.type-bug     { background: rgba(163,230,53,.18);  border-color: rgba(163,230,53,.30); }
+    .type.type-electric{ background: rgba(250,204,21,.18);  border-color: rgba(250,204,21,.30); }
+
+    .detail{padding:14px; display:grid; gap:12px;}
+    .hero{
+      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
+      padding:12px; border:1px solid var(--line); border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+    }
+    .hero-left{display:flex; gap:12px; align-items:center}
+    .hero .big{
+      width:92px; height:92px; border-radius: 22px;
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      display:grid; place-items:center; overflow:hidden;
+    }
+    .hero .big img{width:92px; height:92px; image-rendering: pixelated;}
+    .hero h2{margin:0; font-size:18px}
+    .hero p{margin:4px 0 0; color:var(--muted); font-size:12px}
+    .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    .box{
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.04);
+      padding:12px;
+    }
+    .box h4{margin:0 0 10px; font-size:12px; color: rgba(255,255,255,.86); letter-spacing:.2px}
+    .moves{display:flex; flex-wrap:wrap; gap:8px;}
+    .move{
+      border:1px solid rgba(45,212,191,.22);
+      background: rgba(45,212,191,.08);
+      border-radius: 999px;
+      padding:6px 10px;
+      font-size:12px;
+    }
+    .hint{color: var(--muted); font-size: 12px; line-height: 1.4;}
+    .footer-actions{display:flex; gap:10px; flex-wrap:wrap}
+    .file{display:none;}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius: 999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.92);
+      font-size: 12px;
+    }
+    a{color: var(--accent2); text-decoration:none}
+    a:hover{text-decoration:underline}
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">⚡</div>
+        <div class="title">
+          <h1>Pokédex Visual — Equipo (Añil 4.0)</h1>
+          <p>Tarjetas + detalle + filtros. Sprites, tipos y evolución se cargan automáticamente (PokeAPI).</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <input id="q" type="search" placeholder="Buscar (ej: Charizard, naturaleza, habilidad…)" />
+        <select id="fNature">
+          <option value="">Naturaleza: todas</option>
+        </select>
+        <select id="fAbility">
+          <option value="">Habilidad: todas</option>
+        </select>
+        <button class="primary" id="exportBtn">Exportar JSON</button>
+        <button class="ghost" id="importBtn">Importar JSON</button>
+        <input class="file" id="file" type="file" accept="application/json" />
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Equipo (12)</h2>
+          <small id="countLabel">Mostrando 12</small>
+        </div>
+        <div class="pill" title="Tip">🧠 <span>Click en una tarjeta para ver todo.</span></div>
+      </div>
+      <div class="cards" id="cards"></div>
+    </section>
+
+    <aside class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>Detalle</h2>
+          <small>Vista “multimedia” del Pokémon seleccionado</small>
+        </div>
+        <div class="pill">🌐 <span id="apiStatus">Cargando…</span></div>
+      </div>
+
+      <div class="detail" id="detail">
+        <div class="hint">
+          Selecciona un Pokémon a la izquierda.  
+          Nota: sprites/tipos/evolución requieren internet (PokeAPI).
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+
+<script>
+  // --- Datos base (los tuyos) ---
+  const DATA = [
+    {
+      name: "Rillaboom",
+      apiId: "rillaboom",
+      how: "Intercambio por Victreebel (Fluxus)",
+      nature: "Firme",
+      ability: "Herbogénesis",
+      item: "Semilla Milagro",
+      moves: ["Deslizador Grama","Mazazo","Desarme","Ida y Vuelta"]
+    },
+    {
+      name: "Dragapult",
+      apiId: "dragapult",
+      how: "Dreepy Ruta 22",
+      nature: "Alegre",
+      ability: "Allanamiento",
+      item: "Garra Dragón (objeto)",
+      moves: ["Dardos Dragón","Sombra Vil","Ida y Vuelta","Lanzallamas"]
+    },
+    {
+      name: "Garchomp",
+      apiId: "garchomp",
+      how: "Gabite Exp. Luminalia Sur",
+      nature: "Alegre",
+      ability: "Piel Tosca",
+      item: "Casco Dentado",
+      moves: ["Terremoto","Garra Dragón","Avalancha","Danza Espada"]
+    },
+    {
+      name: "Corviknight",
+      apiId: "corviknight",
+      how: "Corvisquire Ruta 12",
+      nature: "Agitada",
+      ability: "Reflejo Espejo",
+      item: "Restos",
+      moves: ["Pájaro Osado","Respiro","Cabeza de Hierro","Despejar"]
+    },
+    {
+      name: "Toxapex",
+      apiId: "toxapex",
+      how: "Isla Montesanto",
+      nature: "Serena",
+      ability: "Regeneración",
+      item: "Lodo Negro",
+      moves: ["Escaldar","Tóxico","Recuperación","Niebla"]
+    },
+    {
+      name: "Charizard (Mega X)",
+      apiId: "charizard-mega-x",
+      how: "Intercambio Rapidash Café Bohemie",
+      nature: "Alegre",
+      ability: "Mar Llamas → Garra Dura",
+      item: "Charizardita X",
+      moves: ["Danza Dragón","Envite Ígneo","Garra Dragón","Terremoto"]
+    },
+    {
+      name: "Volcarona",
+      apiId: "volcarona",
+      how: "Larvesta Ruta 21",
+      nature: "Miedosa",
+      ability: "Cuerpo Llama",
+      item: "Carbón",
+      moves: ["Danza Aleteo","Danza Llama","Zumbido","Gigadrenado"]
+    },
+    {
+      name: "Tyranitar",
+      apiId: "tyranitar",
+      how: "Larvitar Pirineos de Kalos",
+      nature: "Firme",
+      ability: "Chorro Arena",
+      item: "Roca Suave",
+      moves: ["Roca Afilada","Triturar","Terremoto","Danza Dragón"]
+    },
+    {
+      name: "Excadrill",
+      apiId: "excadrill",
+      how: "Drilbur Cueva Grisalla",
+      nature: "Alegre",
+      ability: "Ímpetu Arena",
+      item: "Cinta Fuerte",
+      moves: ["Terremoto","Cabeza de Hierro","Avalancha","Danza Espada"]
+    },
+    {
+      name: "Kingambit",
+      apiId: "kingambit",
+      how: "Pawniard Ruta 18",
+      nature: "Firme",
+      ability: "General Supremo",
+      item: "Gafas Negras",
+      moves: ["Tajo Sombrío","Cabeza de Hierro","Golpe Bajo","Danza Espada"]
+    },
+    {
+      name: "Greninja",
+      apiId: "greninja",
+      how: "Inicial Kalos",
+      nature: "Miedosa",
+      ability: "Mutatipo",
+      item: "Agua Mística",
+      moves: ["Hidrobomba","Rayo Hielo","Pulso Umbrío","Ida y Vuelta"]
+    },
+    {
+      name: "Primarina",
+      apiId: "primarina",
+      how: "Intercambio Sharpedo Luminalia Oeste",
+      nature: "Modesta",
+      ability: "Torrente",
+      item: "Perla Grande",
+      moves: ["Fuerza Lunar","Surf","Rayo Hielo","Paz Mental"]
+    }
+  ];
+
+  // Caches
+  const pokeCache = new Map();
+  const evoCache = new Map();
+
+  // UI refs
+  const elCards = document.getElementById("cards");
+  const elDetail = document.getElementById("detail");
+  const elCount = document.getElementById("countLabel");
+  const elQ = document.getElementById("q");
+  const elNature = document.getElementById("fNature");
+  const elAbility = document.getElementById("fAbility");
+  const elApiStatus = document.getElementById("apiStatus");
+
+  const elExport = document.getElementById("exportBtn");
+  const elImport = document.getElementById("importBtn");
+  const elFile = document.getElementById("file");
+
+  let state = {
+    list: structuredClone(DATA),
+    filtered: structuredClone(DATA),
+    selectedIndex: 0
+  };
+
+  // Helpers
+  const norm = (s) => (s ?? "").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
+  const uniq = (arr) => Array.from(new Set(arr)).filter(Boolean).sort((a,b)=>a.localeCompare(b,"es"));
+  function setStatus(msg){ elApiStatus.textContent = msg; }
+
+  async function fetchPokemon(apiId){
+    if(!apiId) return null;
+    if(pokeCache.has(apiId)) return pokeCache.get(apiId);
+
+    const url = `https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(apiId)}`;
+    try{
+      const res = await fetch(url);
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const data = await res.json();
+
+      const sprite =
+        data?.sprites?.other?.["official-artwork"]?.front_default ||
+        data?.sprites?.front_default ||
+        null;
+
+      const types = (data?.types ?? []).map(t => t?.type?.name).filter(Boolean);
+      const cry = data?.cries?.latest || data?.cries?.legacy || null;
+
+      const pack = { sprite, types, cry, raw: data };
+      pokeCache.set(apiId, pack);
+      return pack;
+    } catch (e){
+      pokeCache.set(apiId, { sprite:null, types:[], cry:null, error:true });
+      return pokeCache.get(apiId);
+    }
+  }
+
+  async function fetchEvolutionLine(apiId){
+    if(!apiId) return [];
+    if(evoCache.has(apiId)) return evoCache.get(apiId);
+
+    try{
+      // pokemon -> species
+      const pRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(apiId)}`);
+      if(!pRes.ok) throw new Error("pokemon fetch failed");
+      const pData = await pRes.json();
+
+      const speciesUrl = pData?.species?.url;
+      if(!speciesUrl) { evoCache.set(apiId, []); return []; }
+
+      // species -> evolution_chain
+      const sRes = await fetch(speciesUrl);
+      if(!sRes.ok) throw new Error("species fetch failed");
+      const sData = await sRes.json();
+
+      const evoUrl = sData?.evolution_chain?.url;
+      if(!evoUrl) { evoCache.set(apiId, []); return []; }
+
+      // evolution chain parse
+      const eRes = await fetch(evoUrl);
+      if(!eRes.ok) throw new Error("evo chain fetch failed");
+      const eData = await eRes.json();
+
+      const line = [];
+      let node = eData?.chain;
+
+      while(node && line.length < 3){
+        const name = node?.species?.name;
+        if(name) line.push(name);
+        node = node?.evolves_to?.[0]; // rama principal
+      }
+
+      evoCache.set(apiId, line);
+      return line;
+    } catch {
+      evoCache.set(apiId, []);
+      return [];
+    }
+  }
+
+  function typeLabel(t){
+    const map = {
+      normal:"Normal", fire:"Fuego", water:"Agua", electric:"Eléctrico", grass:"Planta",
+      ice:"Hielo", fighting:"Lucha", poison:"Veneno", ground:"Tierra", flying:"Volador",
+      psychic:"Psíquico", bug:"Bicho", rock:"Roca", ghost:"Fantasma", dragon:"Dragón",
+      dark:"Siniestro", steel:"Acero", fairy:"Hada"
+    };
+    return map[t] || t;
+  }
+
+  function buildFilters(){
+    const natures = uniq(state.list.map(p=>p.nature));
+    const abilities = uniq(state.list.map(p=>p.ability));
+    elNature.innerHTML = `<option value="">Naturaleza: todas</option>` + natures.map(v=>`<option value="${v}">${v}</option>`).join("");
+    elAbility.innerHTML = `<option value="">Habilidad: todas</option>` + abilities.map(v=>`<option value="${v}">${v}</option>`).join("");
+  }
+
+  function applyFilters(){
+    const q = norm(elQ.value);
+    const fN = elNature.value;
+    const fA = elAbility.value;
+
+    state.filtered = state.list.filter(p=>{
+      if(fN && p.nature !== fN) return false;
+      if(fA && p.ability !== fA) return false;
+
+      if(!q) return true;
+
+      const blob = norm([
+        p.name, p.how, p.nature, p.ability, p.item, ...(p.moves||[])
+      ].join(" | "));
+
+      return blob.includes(q);
+    });
+
+    elCount.textContent = `Mostrando ${state.filtered.length}`;
+    renderCards();
+
+    if(state.filtered.length){
+      state.selectedIndex = 0;
+      renderDetail(state.filtered[0]);
+    } else {
+      elDetail.innerHTML = `<div class="hint">No hay resultados con ese filtro/búsqueda.</div>`;
+    }
+  }
+
+  function cardHTML(p, media){
+    const sprite = media?.sprite;
+    const types = media?.types ?? [];
+    return `
+      <div class="card" role="button" tabindex="0" data-key="${p.apiId}">
+        <div class="sprite">
+          ${sprite ? `<img alt="${p.name}" src="${sprite}">` : `<div style="font-size:24px; opacity:.8">🟣</div>`}
+        </div>
+        <div>
+          <h3>${p.name}</h3>
+          <div class="meta">
+            <span class="chip">${p.nature}</span>
+            <span class="chip dim">${p.ability}</span>
+          </div>
+          <div class="types">
+            ${types.slice(0,2).map(t=>`<span class="type type-${t}">${typeLabel(t)}</span>`).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function renderCards(){
+    elCards.innerHTML = "";
+    const list = state.filtered;
+
+    // Render rápido (skeleton)
+    elCards.innerHTML = list.map(p => cardHTML(p, null)).join("");
+
+    // listeners
+    const nodes = Array.from(elCards.querySelectorAll(".card"));
+    nodes.forEach((node, i)=>{
+      node.addEventListener("click", ()=> {
+        state.selectedIndex = i;
+        renderDetail(list[i]);
+      });
+      node.addEventListener("keydown", (e)=>{
+        if(e.key === "Enter" || e.key === " "){
+          e.preventDefault();
+          state.selectedIndex = i;
+          renderDetail(list[i]);
+        }
+      });
+    });
+
+    setStatus("Cargando sprites/tipos…");
+    let ok = 0;
+
+    await Promise.all(list.map(async (p, i)=>{
+      const media = await fetchPokemon(p.apiId);
+      if(media && !media.error) ok++;
+
+      const node = nodes[i];
+      if(!node) return;
+
+      const spriteBox = node.querySelector(".sprite");
+      if(spriteBox && media?.sprite){
+        spriteBox.innerHTML = `<img alt="${p.name}" src="${media.sprite}">`;
+      }
+      const typesBox = node.querySelector(".types");
+      if(typesBox){
+        typesBox.innerHTML = (media?.types ?? []).slice(0,2).map(t=>`<span class="type type-${t}">${typeLabel(t)}</span>`).join("");
+      }
+    }));
+
+    setStatus(ok ? `Listo (${ok}/${list.length})` : "Sin sprites (sin internet o PokeAPI bloqueada)");
+  }
+
+  async function renderDetail(p){
+    const media = await fetchPokemon(p.apiId);
+    const sprite = media?.sprite;
+    const types = media?.types ?? [];
+    const cry = media?.cry;
+
+    const evo = await fetchEvolutionLine(p.apiId);
+
+    const movesHTML = (p.moves||[]).map(m=>`<span class="move">${m}</span>`).join("");
+    const evoHTML = evo.length
+      ? evo.map(n => `<span class="move">${n.charAt(0).toUpperCase()+n.slice(1)}</span>`).join("")
+      : `<div class="hint">No disponible (o sin internet).</div>`;
+
+    elDetail.innerHTML = `
+      <div class="hero">
+        <div class="hero-left">
+          <div class="big">
+            ${sprite ? `<img alt="${p.name}" src="${sprite}">` : `<div style="font-size:30px; opacity:.85">🟣</div>`}
+          </div>
+          <div>
+            <h2>${p.name}</h2>
+            <p>
+              ${
+                types.length
+                  ? types.map(t=>`<span class="type type-${t}" style="display:inline-block; margin-right:6px">${typeLabel(t)}</span>`).join("")
+                  : "Tipos: (no disponibles)"
+              }
+            </p>
+            <div class="meta" style="margin-top:8px">
+              <span class="chip">${p.nature}</span>
+              <span class="chip dim">${p.ability}</span>
+              <span class="chip dim">${p.item}</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
+          ${cry ? `<audio controls src="${cry}" title="Cry"></audio>` : ``}
+        </div>
+      </div>
+
+      <div class="kv">
+        <div class="box">
+          <h4>Cómo obtenerlo</h4>
+          <div class="hint">${p.how}</div>
+        </div>
+
+        <div class="box">
+          <h4>Movimientos</h4>
+          <div class="moves">${movesHTML}</div>
+        </div>
+
+        <div class="box" style="grid-column:1 / -1">
+          <h4>Evolución (línea principal)</h4>
+          <div class="moves">${evoHTML}</div>
+          <div class="hint" style="margin-top:8px">
+            Nota: si un Pokémon tiene evoluciones ramificadas, aquí se muestra la primera rama.
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-actions">
+        <button class="primary" id="copyBtn">Copiar ficha (texto)</button>
+        <button class="ghost" id="openApiBtn">Abrir en PokeAPI</button>
+      </div>
+    `;
+
+    const copyBtn = document.getElementById("copyBtn");
+    const openApiBtn = document.getElementById("openApiBtn");
+
+    if(copyBtn){
+      copyBtn.onclick = async ()=>{
+        const txt =
+`${p.name}
+Cómo obtenerlo: ${p.how}
+Naturaleza: ${p.nature}
+Habilidad: ${p.ability}
+Objeto: ${p.item}
+Movimientos: ${(p.moves||[]).join(" / ")}
+Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
+`;
+        try{
+          await navigator.clipboard.writeText(txt);
+          copyBtn.textContent = "✅ Copiado";
+          setTimeout(()=>copyBtn.textContent="Copiar ficha (texto)", 900);
+        } catch {
+          alert("No pude copiar al portapapeles. (Permisos del navegador)");
+        }
+      };
+    }
+
+    if(openApiBtn){
+      openApiBtn.onclick = ()=> window.open(`https://pokeapi.co/api/v2/pokemon/${encodeURIComponent(p.apiId)}`, "_blank", "noopener");
+    }
+  }
+
+  // Import / Export JSON
+  elExport.addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(state.list, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "equipo_pokemon.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  elImport.addEventListener("click", ()=> elFile.click());
+  elFile.addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    try{
+      const text = await file.text();
+      const json = JSON.parse(text);
+      if(!Array.isArray(json)) throw new Error("El JSON debe ser un arreglo de Pokémon.");
+      state.list = json;
+      buildFilters();
+      applyFilters();
+      setStatus("Datos importados ✅");
+    } catch(err){
+      alert("No pude importar ese JSON. Revisa el formato.\n\n" + err.message);
+    } finally {
+      elFile.value = "";
+    }
+  });
+
+  // Events
+  elQ.addEventListener("input", applyFilters);
+  elNature.addEventListener("change", applyFilters);
+  elAbility.addEventListener("change", applyFilters);
+
+  // Init
+  buildFilters();
+  applyFilters();
+  renderDetail(state.filtered[0]);
+</script>
+</body>
+</html>
