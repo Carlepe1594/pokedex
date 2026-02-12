@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pokédex Visual — Equipo (Añil 4.0) v3</title>
+  <title>Pokédex Visual — Equipo (Añil 4.0) v4</title>
   <style>
     :root{
       --bg:#0b1020; --panel:#121a33; --card:#0f1730; --muted:#a9b3d1; --text:#eef2ff;
@@ -58,6 +58,7 @@
       border-color: rgba(124,92,255,.35);
     }
     button.ghost{background: transparent;}
+
     main .grid{
       display:grid;
       grid-template-columns: 1.1fr .9fr;
@@ -84,6 +85,7 @@
     }
     .panel-head h2{margin:0; font-size:14px; letter-spacing:.3px; color:rgba(255,255,255,.92)}
     .panel-head small{color:var(--muted)}
+
     .cards{
       display:grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -106,6 +108,7 @@
       gap:12px;
       cursor:pointer;
       transition: .16s transform, .16s border-color, .16s background;
+      min-width:0;
     }
     .card:hover{
       transform: translateY(-2px);
@@ -128,7 +131,9 @@
       border:1px solid var(--line);
       background: rgba(255,255,255,.06);
       color: rgba(255,255,255,.92);
-      white-space:nowrap;
+      white-space: normal;       /* ✅ antes nowrap */
+      overflow-wrap: anywhere;   /* ✅ no se corta */
+      max-width: 100%;
     }
     .chip.dim{color: var(--muted)}
     .types{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px}
@@ -139,15 +144,17 @@
       background: rgba(124,92,255,.12);
       color: rgba(255,255,255,.92);
       display:inline-block;
+      white-space: normal;      /* ✅ */
+      overflow-wrap: anywhere;  /* ✅ */
     }
 
-    /* Paleta (ajustada con tus pedidos) */
+    /* Paleta (tus ajustes) */
     .type.type-grass   { background: rgba(34,197,94,.24);   border-color: rgba(34,197,94,.38); }
     .type.type-water   { background: rgba(56,189,248,.24);  border-color: rgba(56,189,248,.38); }
     .type.type-ghost   { background: rgba(168,85,247,.24);  border-color: rgba(168,85,247,.38); }
     .type.type-dragon  { background: rgba(30,64,175,.26);   border-color: rgba(30,64,175,.40); }
-    .type.type-ground  { background: rgba(216,145,56,.24);  border-color: rgba(216,145,56,.38); } /* café claro */
-    .type.type-rock    { background: rgba(140,86,33,.26);   border-color: rgba(140,86,33,.42); } /* más oscuro */
+    .type.type-ground  { background: rgba(216,145,56,.24);  border-color: rgba(216,145,56,.38); }
+    .type.type-rock    { background: rgba(140,86,33,.26);   border-color: rgba(140,86,33,.42); }
     .type.type-dark    { background: rgba(15,23,42,.42);    border-color: rgba(148,163,184,.18); }
     .type.type-steel   { background: rgba(100,116,139,.30); border-color: rgba(148,163,184,.40); }
     .type.type-flying  { background: rgba(241,245,249,.22); border-color: rgba(241,245,249,.35); }
@@ -166,25 +173,28 @@
       display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
       padding:12px; border:1px solid var(--line); border-radius: var(--radius);
       background: rgba(255,255,255,.04);
+      min-width:0;
     }
-    .hero-left{display:flex; gap:12px; align-items:center}
+    .hero-left{display:flex; gap:12px; align-items:center; min-width:0}
     .hero .big{
       width:92px; height:92px; border-radius: 22px;
       background: rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.12);
       display:grid; place-items:center; overflow:hidden;
+      flex: 0 0 auto;
     }
     .hero .big img{width:92px; height:92px; image-rendering: pixelated;}
     .hero h2{margin:0; font-size:18px}
-    .hero p{margin:6px 0 0; color:var(--muted); font-size:12px}
     .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
     .box{
       border:1px solid var(--line);
       border-radius: var(--radius);
       background: rgba(255,255,255,.04);
       padding:12px;
+      min-width:0;
     }
     .box h4{margin:0 0 10px; font-size:12px; color: rgba(255,255,255,.86); letter-spacing:.2px}
+    .hint{color: var(--muted); font-size: 12px; line-height: 1.4;}
 
     .moves{display:flex; flex-wrap:wrap; gap:8px;}
     .move{
@@ -196,11 +206,14 @@
       display:inline-flex;
       gap:8px;
       align-items:center;
+      max-width: 100%;
+      white-space: normal;      /* ✅ */
+      overflow-wrap: anywhere;  /* ✅ */
     }
+    .move span{min-width:0}
     .move .tag{font-size:11px; padding:3px 8px; border-radius:999px;}
     .move .tag.type{padding:3px 8px; font-size:11px}
 
-    .hint{color: var(--muted); font-size: 12px; line-height: 1.4;}
     .footer-actions{display:flex; gap:10px; flex-wrap:wrap}
     .file{display:none;}
     .pill{
@@ -210,55 +223,40 @@
       background: rgba(255,255,255,.04);
       color: rgba(255,255,255,.92);
       font-size: 12px;
+      max-width:100%;
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
-    /* ====== TABLA v3 (modo parecido a PKMN.help: ofensivo/defensivo + dual-type) ====== */
-    .typecalc-controls{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:10px}
-    .modeBtn{padding:8px 10px; border-radius:999px}
-    .modeBtn.active{border-color: rgba(124,92,255,.55); background: rgba(124,92,255,.18)}
-    .grid2{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width: 560px){ .grid2{grid-template-columns:1fr} }
+    /* Tabs (Detalle / Pokédex) */
+    .tabs{display:flex; gap:8px; flex-wrap:wrap;}
+    .tabBtn{
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.04);
+      cursor:pointer;
+    }
+    .tabBtn.active{
+      border-color: rgba(124,92,255,.55);
+      background: rgba(124,92,255,.18);
+    }
 
-    .typechart{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      overflow:hidden;
+    /* Pokedex panel */
+    .pokedexGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+    @media (max-width: 560px){ .pokedexGrid{grid-template-columns:1fr} }
+
+    .bucketTitle{margin:0 0 8px; font-size:12px; color: rgba(255,255,255,.86)}
+    .bucket{
       border:1px solid var(--line);
       border-radius: var(--radius);
       background: rgba(255,255,255,.03);
+      padding:12px;
+      min-width:0;
     }
-    .typechart th, .typechart td{
-      padding:8px 10px;
-      border-bottom:1px solid var(--line);
-      border-right:1px solid var(--line);
-      font-size:12px;
-      text-align:center;
-      white-space:nowrap;
-    }
-    .typechart th:last-child, .typechart td:last-child{border-right:none}
-    .typechart tr:last-child td{border-bottom:none}
-    .typechart thead th{
-      position:sticky; top:0;
-      background: rgba(18,26,51,.92);
-      z-index:1;
-    }
-    .rowhead{ text-align:left !important; display:flex; align-items:center; gap:8px; }
-
-    .cell-0{ background: rgba(239,68,68,.14); }
-    .cell-025{ background: rgba(250,204,21,.08); }
-    .cell-05{ background: rgba(250,204,21,.12); }
-    .cell-1{ background: rgba(255,255,255,.02); }
-    .cell-2{ background: rgba(34,197,94,.12); }
-    .cell-4{ background: rgba(34,197,94,.18); }
-
-    .miniList{display:flex; flex-wrap:wrap; gap:8px;}
-    .pill2{
-      display:inline-flex; align-items:center; gap:8px;
-      padding:8px 10px; border-radius: 999px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.04);
-      font-size: 12px;
+    .bucket .list{display:flex; flex-wrap:wrap; gap:8px;}
+    .scrollX{
+      overflow-x:auto;
+      -webkit-overflow-scrolling: touch;
     }
   </style>
 </head>
@@ -270,8 +268,8 @@
       <div class="brand">
         <div class="logo">⚡</div>
         <div class="title">
-          <h1>Pokédex Visual — Equipo (Añil 4.0) v3</h1>
-          <p>Movimientos coloreados + evolución + tabla de tipos ofensiva/defensiva (dual-type).</p>
+          <h1>Pokédex Visual — Equipo (Añil 4.0) v4</h1>
+          <p>Detalle del equipo + pestaña Pokédex (debilidades, resistencias e inmunidades por tipos).</p>
         </div>
       </div>
 
@@ -303,13 +301,16 @@
     <aside class="panel">
       <div class="panel-head">
         <div>
-          <h2>Detalle</h2>
-          <small>Sprites/evolución requieren internet (PokeAPI).</small>
+          <h2>Panel</h2>
+          <small id="subTitle">Detalle del Pokémon seleccionado</small>
         </div>
-        <div class="pill">🌐 <span id="apiStatus">Cargando…</span></div>
+        <div class="tabs">
+          <button class="tabBtn active" id="tabDetail">Detalle</button>
+          <button class="tabBtn" id="tabPokedex">Pokédex</button>
+        </div>
       </div>
 
-      <div class="detail" id="detail"></div>
+      <div class="detail" id="rightPane"></div>
     </aside>
   </div>
 </main>
@@ -346,7 +347,7 @@
   // ====== MOVES: mapeo local (Español -> tipo) ======
   const MOVE_TYPE = {
     "Deslizador Grama":"grass","Mazazo":"grass","Desarme":"dark","Ida y Vuelta":"bug",
-    "Dardos Dragón":"dragon","Sombra Vil":"ghost","Lanzallamas":"fire",
+    "Dardos Dragón":"dragon","Sombra Vil":"ghost","Ida y Vuelta":"bug","Lanzallamas":"fire",
     "Terremoto":"ground","Garra Dragón":"dragon","Avalancha":"rock","Danza Espada":"normal",
     "Pájaro Osado":"flying","Respiro":"flying","Cabeza de Hierro":"steel","Despejar":"flying",
     "Escaldar":"water","Tóxico":"poison","Recuperación":"normal","Niebla":"ice",
@@ -358,7 +359,7 @@
     "Fuerza Lunar":"fairy","Surf":"water","Paz Mental":"psychic"
   };
 
-  // ====== TIPOS + TABLA ======
+  // ====== TIPOS + CHART ======
   const TYPES = ["normal","fire","water","electric","grass","ice","fighting","poison","ground","flying","psychic","bug","rock","ghost","dragon","dark","steel","fairy"];
   const TYPE_LABEL = {
     normal:"Normal", fire:"Fuego", water:"Agua", electric:"Eléctrico", grass:"Planta", ice:"Hielo",
@@ -394,49 +395,39 @@
     if(r.half.includes(def)) return 0.5;
     return 1;
   }
-  function multDual(atk, def1, def2){
-    if(!def2) return mult(atk, def1);
-    return mult(atk, def1) * mult(atk, def2);
-  }
-  function classFor(m){
-    if(m === 0) return "cell-0";
-    if(m === 0.25) return "cell-025";
-    if(m === 0.5) return "cell-05";
-    if(m === 2) return "cell-2";
-    if(m === 4) return "cell-4";
-    return "cell-1";
-  }
-  function textFor(m){
-    if(m === 0.25) return "¼";
-    if(m === 0.5) return "½";
-    if(m === 4) return "4";
-    if(m === 2) return "2";
-    if(m === 0) return "0";
-    return "1";
+  function multDefAgainst(def1, def2, atk){
+    const m1 = mult(atk, def1);
+    const m2 = def2 ? mult(atk, def2) : 1;
+    return m1 * m2;
   }
 
-  // ====== CACHES + UI ======
+  // ====== UI + STATE ======
   const pokeCache = new Map();
   const evoCache = new Map();
 
   const elCards = document.getElementById("cards");
-  const elDetail = document.getElementById("detail");
+  const rightPane = document.getElementById("rightPane");
   const elCount = document.getElementById("countLabel");
   const elQ = document.getElementById("q");
   const elNature = document.getElementById("fNature");
   const elAbility = document.getElementById("fAbility");
-  const elApiStatus = document.getElementById("apiStatus");
+
   const elExport = document.getElementById("exportBtn");
   const elImport = document.getElementById("importBtn");
   const elFile = document.getElementById("file");
 
-  let state = { list: structuredClone(DATA), filtered: structuredClone(DATA) };
+  const tabDetail = document.getElementById("tabDetail");
+  const tabPokedex = document.getElementById("tabPokedex");
+  const subTitle = document.getElementById("subTitle");
+
+  let state = { list: structuredClone(DATA), filtered: structuredClone(DATA), selected: DATA[0] };
+  let activeTab = "detail";
 
   const norm = (s) => (s ?? "").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
   const uniq = (arr) => Array.from(new Set(arr)).filter(Boolean).sort((a,b)=>a.localeCompare(b,"es"));
   const cap = (s)=> s ? s.charAt(0).toUpperCase()+s.slice(1) : s;
 
-  function setStatus(msg){ elApiStatus.textContent = msg; }
+  function typeBadge(t){ return `<span class="type type-${t}">${TYPE_LABEL[t] || t}</span>`; }
 
   async function fetchPokemon(apiId){
     if(!apiId) return null;
@@ -490,8 +481,6 @@
     }
   }
 
-  function typeBadge(t){ return `<span class="type type-${t}">${TYPE_LABEL[t] || t}</span>`; }
-
   function buildFilters(){
     const natures = uniq(state.list.map(p=>p.nature));
     const abilities = uniq(state.list.map(p=>p.ability));
@@ -514,16 +503,19 @@
 
     elCount.textContent = `Mostrando ${state.filtered.length}`;
     renderCards();
-    if(state.filtered.length) renderDetail(state.filtered[0]);
+    if(state.filtered.length){
+      state.selected = state.filtered[0];
+      if(activeTab === "detail") renderDetail(state.selected);
+    }
   }
 
   function cardHTML(p, media){
     const sprite = media?.sprite;
     const types = media?.types ?? [];
     return `
-      <div class="card" role="button" tabindex="0">
+      <div class="card" role="button" tabindex="0" data-id="${p.apiId}">
         <div class="sprite">${sprite ? `<img alt="${p.name}" src="${sprite}">` : `<div style="font-size:24px; opacity:.8">🟣</div>`}</div>
-        <div>
+        <div style="min-width:0">
           <h3>${p.name}</h3>
           <div class="meta">
             <span class="chip">${p.nature}</span>
@@ -541,18 +533,17 @@
 
     const nodes = Array.from(elCards.querySelectorAll(".card"));
     nodes.forEach((node, i)=>{
-      node.addEventListener("click", ()=> renderDetail(list[i]));
-      node.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter" || e.key === " "){ e.preventDefault(); renderDetail(list[i]); }
-      });
+      const p = list[i];
+      const go = ()=>{
+        state.selected = p;
+        if(activeTab === "detail") renderDetail(p);
+      };
+      node.addEventListener("click", go);
+      node.addEventListener("keydown", (e)=>{ if(e.key === "Enter" || e.key === " "){ e.preventDefault(); go(); }});
     });
-
-    setStatus("Cargando sprites/tipos…");
-    let ok = 0;
 
     await Promise.all(list.map(async (p, i)=>{
       const media = await fetchPokemon(p.apiId);
-      if(media && !media.error) ok++;
       const node = nodes[i];
       if(!node) return;
 
@@ -562,8 +553,6 @@
       const typesBox = node.querySelector(".types");
       if(typesBox) typesBox.innerHTML = (media?.types ?? []).slice(0,2).map(typeBadge).join("");
     }));
-
-    setStatus(ok ? `Listo (${ok}/${list.length})` : "Sin internet / PokeAPI bloqueada");
   }
 
   function moveChip(moveName){
@@ -572,144 +561,29 @@
     return `<span class="move">${tag}<span>${moveName}</span></span>`;
   }
 
-  function typeCalcHTML(defaultAtk="fire", defaultDef1="steel", defaultDef2=""){
-    return `
-      <div class="box">
-        <h4>Tabla de tipos (v3)</h4>
-
-        <div class="typecalc-controls">
-          <button class="modeBtn active" id="modeOff">Ofensiva</button>
-          <button class="modeBtn" id="modeDef">Defensiva</button>
-          <span class="hint">Dual-type incluido (elige 2 tipos).</span>
-        </div>
-
-        <div id="typeCalcBody"></div>
-      </div>
-    `;
-  }
-
-  function typeCalcBodyOff(atk1="fire", atk2=""){
-    return `
-      <div class="grid2" style="margin-bottom:10px">
-        <div class="pill2">
-          <span class="hint">Atacante 1</span>
-          <select id="atk1">${TYPES.map(t=>`<option value="${t}" ${t===atk1?"selected":""}>${TYPE_LABEL[t]}</option>`).join("")}</select>
-        </div>
-        <div class="pill2">
-          <span class="hint">Atacante 2 (opcional)</span>
-          <select id="atk2">
-            <option value="">—</option>
-            ${TYPES.map(t=>`<option value="${t}" ${t===atk2?"selected":""}>${TYPE_LABEL[t]}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-
-      <div class="hint" style="margin:6px 0 10px">
-        Resultado = “mejor” de los dos ataques (como hace uno al calcular cobertura).
-      </div>
-
-      <div style="overflow:auto; max-height: 320px;">
-        <table class="typechart" id="tableOff">
-          <thead>
-            <tr>
-              <th style="text-align:left">Defensa</th>
-              <th>vs ${typeBadge(atk1)}${atk2?(" + "+typeBadge(atk2)):""}</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${buildDefensePairs().map(pair=>{
-              const [d1,d2] = pair;
-              const m1 = multDual(atk1, d1, d2||"");
-              const m2 = atk2 ? multDual(atk2, d1, d2||"") : -1;
-              const m = atk2 ? Math.max(m1, m2) : m1;
-              return `
-                <tr>
-                  <td class="rowhead">${typeBadge(d1)}${d2?(" "+typeBadge(d2)):""}</td>
-                  <td class="${classFor(m)}">${textFor(m)}</td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  function typeCalcBodyDef(def1="steel", def2=""){
-    return `
-      <div class="grid2" style="margin-bottom:10px">
-        <div class="pill2">
-          <span class="hint">Defensa 1</span>
-          <select id="def1">${TYPES.map(t=>`<option value="${t}" ${t===def1?"selected":""}>${TYPE_LABEL[t]}</option>`).join("")}</select>
-        </div>
-        <div class="pill2">
-          <span class="hint">Defensa 2 (opcional)</span>
-          <select id="def2">
-            <option value="">—</option>
-            ${TYPES.map(t=>`<option value="${t}" ${t===def2?"selected":""}>${TYPE_LABEL[t]}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-
-      <div class="hint" style="margin:6px 0 10px">
-        Aquí ves qué tan efectivo es cada tipo atacante contra tu defensa (puede salir 4x o ¼x).
-      </div>
-
-      <div style="overflow:auto; max-height: 320px;">
-        <table class="typechart" id="tableDef">
-          <thead>
-            <tr>
-              <th style="text-align:left">Ataca</th>
-              <th>Daño</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${TYPES.map(a=>{
-              const m = multDual(a, def1, def2||"");
-              return `
-                <tr>
-                  <td class="rowhead">${typeBadge(a)}</td>
-                  <td class="${classFor(m)}">${textFor(m)}</td>
-                </tr>
-              `;
-            }).join("")}
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-  function buildDefensePairs(){
-    // incluye mono-tipo + dual-type (sin repetir: order fixed)
-    const pairs = [];
-    // mono
-    for(const t of TYPES) pairs.push([t,""]);
-    // dual
-    for(let i=0;i<TYPES.length;i++){
-      for(let j=i+1;j<TYPES.length;j++){
-        pairs.push([TYPES[i], TYPES[j]]);
-      }
-    }
-    return pairs;
-  }
-
   async function renderDetail(p){
+    subTitle.textContent = "Detalle del Pokémon seleccionado";
     const media = await fetchPokemon(p.apiId);
     const sprite = media?.sprite;
     const types = media?.types ?? [];
     const cry = media?.cry;
 
     const evo = await fetchEvolutionLine(p.apiId);
-    const evoHTML = evo.length ? evo.map(n=>`<span class="move">${cap(n)}</span>`).join("") : `<div class="hint">No disponible (sin internet).</div>`;
+    const evoHTML = evo.length
+      ? `<div class="moves scrollX">${evo.map(n=>`<span class="move">${cap(n)}</span>`).join("")}</div>`
+      : `<div class="hint">No disponible (sin internet).</div>`;
+
     const movesHTML = (p.moves||[]).map(moveChip).join("");
 
-    elDetail.innerHTML = `
+    rightPane.innerHTML = `
       <div class="hero">
         <div class="hero-left">
           <div class="big">${sprite ? `<img alt="${p.name}" src="${sprite}">` : `<div style="font-size:30px; opacity:.85">🟣</div>`}</div>
-          <div>
-            <h2>${p.name}</h2>
-            <div style="margin-top:6px">${types.length ? types.map(typeBadge).join(" ") : `<span class="hint">Tipos: (no disponibles)</span>`}</div>
+          <div style="min-width:0">
+            <h2 style="margin:0">${p.name}</h2>
+            <div style="margin-top:8px" class="scrollX">
+              ${types.length ? types.map(typeBadge).join(" ") : `<span class="hint">Tipos: (no disponibles)</span>`}
+            </div>
             <div class="meta" style="margin-top:10px">
               <span class="chip">${p.nature}</span>
               <span class="chip dim">${p.ability}</span>
@@ -730,7 +604,7 @@
 
         <div class="box">
           <h4>Evolución (línea principal)</h4>
-          <div class="moves">${evoHTML}</div>
+          ${evoHTML}
           <div class="hint" style="margin-top:8px">Si hay ramificaciones, se muestra la primera.</div>
         </div>
 
@@ -740,50 +614,11 @@
         </div>
       </div>
 
-      ${typeCalcHTML(types[0] || "fire")}
-
       <div class="footer-actions">
         <button class="primary" id="copyBtn">Copiar ficha (texto)</button>
       </div>
     `;
 
-    // montar calculadora v3
-    const body = document.getElementById("typeCalcBody");
-    const modeOff = document.getElementById("modeOff");
-    const modeDef = document.getElementById("modeDef");
-
-    const mountOff = ()=>{
-      modeOff.classList.add("active"); modeDef.classList.remove("active");
-      body.innerHTML = typeCalcBodyOff(types[0] || "fire", "");
-      hookOff();
-    };
-    const mountDef = ()=>{
-      modeDef.classList.add("active"); modeOff.classList.remove("active");
-      // usa los tipos del pokémon como defensa por defecto
-      body.innerHTML = typeCalcBodyDef(types[0] || "steel", types[1] || "");
-      hookDef();
-    };
-
-    const hookOff = ()=>{
-      const atk1 = document.getElementById("atk1");
-      const atk2 = document.getElementById("atk2");
-      const rerender = ()=> { body.innerHTML = typeCalcBodyOff(atk1.value, atk2.value); hookOff(); };
-      atk1.addEventListener("change", rerender);
-      atk2.addEventListener("change", rerender);
-    };
-    const hookDef = ()=>{
-      const def1 = document.getElementById("def1");
-      const def2 = document.getElementById("def2");
-      const rerender = ()=> { body.innerHTML = typeCalcBodyDef(def1.value, def2.value); hookDef(); };
-      def1.addEventListener("change", rerender);
-      def2.addEventListener("change", rerender);
-    };
-
-    modeOff.addEventListener("click", mountOff);
-    modeDef.addEventListener("click", mountDef);
-    mountOff();
-
-    // copiar ficha
     const copyBtn = document.getElementById("copyBtn");
     if(copyBtn){
       copyBtn.onclick = async ()=>{
@@ -807,7 +642,113 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
     }
   }
 
-  // Import/Export JSON
+  function classifyDefense(def1, def2){
+    // devuelve buckets por multiplicador para lo que te pega (atk types)
+    const buckets = { "4":[], "2":[], "1":[], "0.5":[], "0.25":[], "0":[] };
+    for(const atk of TYPES){
+      const m = multDefAgainst(def1, def2, atk);
+      if(m === 4) buckets["4"].push(atk);
+      else if(m === 2) buckets["2"].push(atk);
+      else if(m === 1) buckets["1"].push(atk);
+      else if(m === 0.5) buckets["0.5"].push(atk);
+      else if(m === 0.25) buckets["0.25"].push(atk);
+      else if(m === 0) buckets["0"].push(atk);
+    }
+    return buckets;
+  }
+
+  function offensiveStrong(atk1, atk2){
+    // a qué defensas (mono tipo) le pegas 2x (o más) con ese tipo (mejor de dos si hay)
+    const strong = [];
+    for(const def of TYPES){
+      const m1 = mult(atk1, def);
+      const m2 = atk2 ? mult(atk2, def) : 0;
+      const best = Math.max(m1, m2);
+      if(best === 2) strong.push(def);
+    }
+    return strong;
+  }
+
+  function renderPokedex(){
+    subTitle.textContent = "Pokédex de tipos (elige Tipo 1 + Tipo 2)";
+    const opts = TYPES.map(t=>`<option value="${t}">${TYPE_LABEL[t]}</option>`).join("");
+
+    rightPane.innerHTML = `
+      <div class="box">
+        <h4>Pokédex — Calculadora de debilidades / resistencias</h4>
+        <div class="hint">Elige uno o dos tipos defensivos, y te muestro qué te pega 4x/2x, qué resistes (½/¼) y qué es inmune (0).</div>
+
+        <div class="pokedexGrid" style="margin-top:10px">
+          <div>
+            <div class="hint" style="margin-bottom:6px">Tipo 1</div>
+            <select id="pd1">${opts}</select>
+          </div>
+          <div>
+            <div class="hint" style="margin-bottom:6px">Tipo 2 (opcional)</div>
+            <select id="pd2">
+              <option value="">—</option>
+              ${opts}
+            </select>
+          </div>
+        </div>
+
+        <div id="pokedexOut" style="margin-top:12px"></div>
+      </div>
+    `;
+
+    const pd1 = document.getElementById("pd1");
+    const pd2 = document.getElementById("pd2");
+    pd1.value = "steel"; // default bonito
+    pd2.value = "";
+
+    const draw = ()=>{
+      const t1 = pd1.value;
+      const t2 = pd2.value || "";
+      const buckets = classifyDefense(t1, t2);
+
+      const mk = (title, multKey, subtitle) => `
+        <div class="bucket">
+          <p class="bucketTitle">${title} <span class="hint">${subtitle||""}</span></p>
+          <div class="list">${(buckets[multKey]||[]).map(typeBadge).join("") || `<span class="hint">—</span>`}</div>
+        </div>
+      `;
+
+      const strong = offensiveStrong(t1, t2);
+
+      document.getElementById("pokedexOut").innerHTML = `
+        <div class="pokedexGrid">
+          ${mk("Debilidades", "4", "4x")}
+          ${mk("Debilidades", "2", "2x")}
+          ${mk("Resistencias", "0.5", "½x")}
+          ${mk("Resistencias", "0.25", "¼x")}
+          ${mk("Inmunidades", "0", "0x")}
+          <div class="bucket">
+            <p class="bucketTitle">Ofensiva fuerte <span class="hint">(2x vs defensas mono-tipo)</span></p>
+            <div class="list">${strong.map(typeBadge).join("") || `<span class="hint">—</span>`}</div>
+          </div>
+        </div>
+      `;
+    };
+
+    pd1.addEventListener("change", draw);
+    pd2.addEventListener("change", draw);
+    draw();
+  }
+
+  function setTab(tab){
+    activeTab = tab;
+    if(tab === "detail"){
+      tabDetail.classList.add("active");
+      tabPokedex.classList.remove("active");
+      renderDetail(state.selected || state.filtered[0] || state.list[0]);
+    } else {
+      tabPokedex.classList.add("active");
+      tabDetail.classList.remove("active");
+      renderPokedex();
+    }
+  }
+
+  // Import / Export JSON
   elExport.addEventListener("click", ()=>{
     const blob = new Blob([JSON.stringify(state.list, null, 2)], {type:"application/json"});
     const a = document.createElement("a");
@@ -816,6 +757,7 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
     a.click();
     URL.revokeObjectURL(a.href);
   });
+
   elImport.addEventListener("click", ()=> elFile.click());
   elFile.addEventListener("change", async (e)=>{
     const file = e.target.files?.[0];
@@ -827,7 +769,6 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
       state.list = json;
       buildFilters();
       applyFilters();
-      setStatus("Datos importados ✅");
     } catch(err){
       alert("No pude importar ese JSON.\n\n" + err.message);
     } finally {
@@ -835,16 +776,22 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
     }
   });
 
-  // init filters + events
+  tabDetail.addEventListener("click", ()=> setTab("detail"));
+  tabPokedex.addEventListener("click", ()=> setTab("pokedex"));
+
+  // Init
   function init(){
     buildFilters();
     elQ.addEventListener("input", applyFilters);
     elNature.addEventListener("change", applyFilters);
     elAbility.addEventListener("change", applyFilters);
+
     applyFilters();
+    setTab("detail");
   }
   init();
 </script>
 </body>
 </html>
+
 
