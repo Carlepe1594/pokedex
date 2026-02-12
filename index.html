@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pokédex Visual — Equipo (Añil 4.0) v4</title>
+  <title>Pokédex Visual — Equipo (Añil 4.0) v4.1</title>
   <style>
     :root{
       --bg:#0b1020; --panel:#121a33; --card:#0f1730; --muted:#a9b3d1; --text:#eef2ff;
@@ -131,8 +131,8 @@
       border:1px solid var(--line);
       background: rgba(255,255,255,.06);
       color: rgba(255,255,255,.92);
-      white-space: normal;       /* ✅ antes nowrap */
-      overflow-wrap: anywhere;   /* ✅ no se corta */
+      white-space: normal;
+      overflow-wrap: anywhere;
       max-width: 100%;
     }
     .chip.dim{color: var(--muted)}
@@ -144,11 +144,11 @@
       background: rgba(124,92,255,.12);
       color: rgba(255,255,255,.92);
       display:inline-block;
-      white-space: normal;      /* ✅ */
-      overflow-wrap: anywhere;  /* ✅ */
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
 
-    /* Paleta (tus ajustes) */
+    /* Paleta */
     .type.type-grass   { background: rgba(34,197,94,.24);   border-color: rgba(34,197,94,.38); }
     .type.type-water   { background: rgba(56,189,248,.24);  border-color: rgba(56,189,248,.38); }
     .type.type-ghost   { background: rgba(168,85,247,.24);  border-color: rgba(168,85,247,.38); }
@@ -184,7 +184,6 @@
       flex: 0 0 auto;
     }
     .hero .big img{width:92px; height:92px; image-rendering: pixelated;}
-    .hero h2{margin:0; font-size:18px}
     .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
     .box{
       border:1px solid var(--line);
@@ -207,10 +206,9 @@
       gap:8px;
       align-items:center;
       max-width: 100%;
-      white-space: normal;      /* ✅ */
-      overflow-wrap: anywhere;  /* ✅ */
+      white-space: normal;
+      overflow-wrap: anywhere;
     }
-    .move span{min-width:0}
     .move .tag{font-size:11px; padding:3px 8px; border-radius:999px;}
     .move .tag.type{padding:3px 8px; font-size:11px}
 
@@ -228,7 +226,7 @@
       overflow-wrap: anywhere;
     }
 
-    /* Tabs (Detalle / Pokédex) */
+    /* Tabs */
     .tabs{display:flex; gap:8px; flex-wrap:wrap;}
     .tabBtn{
       padding:8px 10px; border-radius:999px;
@@ -241,10 +239,45 @@
       background: rgba(124,92,255,.18);
     }
 
-    /* Pokedex panel */
+    /* Pokédex: selector por click */
+    .typePickWrap{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:10px;
+      user-select:none;
+    }
+    .typePick{
+      border:none;
+      padding:0;
+      background:none;
+      cursor:pointer;
+      border-radius:999px;
+      outline:none;
+    }
+    .typePick .type{
+      transition: .12s transform, .12s box-shadow, .12s opacity;
+    }
+    .typePick:hover .type{ transform: translateY(-1px); }
+    .typePick.selected1 .type{
+      box-shadow: inset 0 0 0 2px rgba(124,92,255,.70), 0 0 0 3px rgba(124,92,255,.12);
+    }
+    .typePick.selected2 .type{
+      box-shadow: inset 0 0 0 2px rgba(45,212,191,.65), 0 0 0 3px rgba(45,212,191,.10);
+    }
+    .pickedLine{
+      display:flex; flex-wrap:wrap; gap:8px; align-items:center;
+      margin-top:10px;
+    }
+    .pill2{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px; border-radius:999px;
+      border:1px solid var(--line);
+      background: rgba(255,255,255,.03);
+      font-size:12px;
+    }
     .pokedexGrid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
     @media (max-width: 560px){ .pokedexGrid{grid-template-columns:1fr} }
-
     .bucketTitle{margin:0 0 8px; font-size:12px; color: rgba(255,255,255,.86)}
     .bucket{
       border:1px solid var(--line);
@@ -254,10 +287,6 @@
       min-width:0;
     }
     .bucket .list{display:flex; flex-wrap:wrap; gap:8px;}
-    .scrollX{
-      overflow-x:auto;
-      -webkit-overflow-scrolling: touch;
-    }
   </style>
 </head>
 
@@ -268,8 +297,8 @@
       <div class="brand">
         <div class="logo">⚡</div>
         <div class="title">
-          <h1>Pokédex Visual — Equipo (Añil 4.0) v4</h1>
-          <p>Detalle del equipo + pestaña Pokédex (debilidades, resistencias e inmunidades por tipos).</p>
+          <h1>Pokédex Visual — Equipo (Añil 4.0) v4.1</h1>
+          <p>Detalle del equipo + Pokédex por tipos (elige tipo 1 y 2 con clic).</p>
         </div>
       </div>
 
@@ -344,10 +373,10 @@
       moves:["Fuerza Lunar","Surf","Rayo Hielo","Paz Mental"] },
   ];
 
-  // ====== MOVES: mapeo local (Español -> tipo) ======
+  // ====== MOVES: mapeo local ======
   const MOVE_TYPE = {
     "Deslizador Grama":"grass","Mazazo":"grass","Desarme":"dark","Ida y Vuelta":"bug",
-    "Dardos Dragón":"dragon","Sombra Vil":"ghost","Ida y Vuelta":"bug","Lanzallamas":"fire",
+    "Dardos Dragón":"dragon","Sombra Vil":"ghost","Lanzallamas":"fire",
     "Terremoto":"ground","Garra Dragón":"dragon","Avalancha":"rock","Danza Espada":"normal",
     "Pájaro Osado":"flying","Respiro":"flying","Cabeza de Hierro":"steel","Despejar":"flying",
     "Escaldar":"water","Tóxico":"poison","Recuperación":"normal","Niebla":"ice",
@@ -422,6 +451,10 @@
 
   let state = { list: structuredClone(DATA), filtered: structuredClone(DATA), selected: DATA[0] };
   let activeTab = "detail";
+
+  // Pokedex selection (click)
+  let pdType1 = "steel";
+  let pdType2 = "";
 
   const norm = (s) => (s ?? "").toString().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
   const uniq = (arr) => Array.from(new Set(arr)).filter(Boolean).sort((a,b)=>a.localeCompare(b,"es"));
@@ -513,7 +546,7 @@
     const sprite = media?.sprite;
     const types = media?.types ?? [];
     return `
-      <div class="card" role="button" tabindex="0" data-id="${p.apiId}">
+      <div class="card" role="button" tabindex="0">
         <div class="sprite">${sprite ? `<img alt="${p.name}" src="${sprite}">` : `<div style="font-size:24px; opacity:.8">🟣</div>`}</div>
         <div style="min-width:0">
           <h3>${p.name}</h3>
@@ -570,7 +603,7 @@
 
     const evo = await fetchEvolutionLine(p.apiId);
     const evoHTML = evo.length
-      ? `<div class="moves scrollX">${evo.map(n=>`<span class="move">${cap(n)}</span>`).join("")}</div>`
+      ? `<div class="moves" style="overflow-x:auto;-webkit-overflow-scrolling:touch">${evo.map(n=>`<span class="move">${cap(n)}</span>`).join("")}</div>`
       : `<div class="hint">No disponible (sin internet).</div>`;
 
     const movesHTML = (p.moves||[]).map(moveChip).join("");
@@ -581,7 +614,7 @@
           <div class="big">${sprite ? `<img alt="${p.name}" src="${sprite}">` : `<div style="font-size:30px; opacity:.85">🟣</div>`}</div>
           <div style="min-width:0">
             <h2 style="margin:0">${p.name}</h2>
-            <div style="margin-top:8px" class="scrollX">
+            <div style="margin-top:8px; overflow-x:auto; -webkit-overflow-scrolling:touch">
               ${types.length ? types.map(typeBadge).join(" ") : `<span class="hint">Tipos: (no disponibles)</span>`}
             </div>
             <div class="meta" style="margin-top:10px">
@@ -613,37 +646,10 @@
           <div class="moves">${movesHTML}</div>
         </div>
       </div>
-
-      <div class="footer-actions">
-        <button class="primary" id="copyBtn">Copiar ficha (texto)</button>
-      </div>
     `;
-
-    const copyBtn = document.getElementById("copyBtn");
-    if(copyBtn){
-      copyBtn.onclick = async ()=>{
-        const txt =
-`${p.name}
-Cómo obtenerlo: ${p.how}
-Naturaleza: ${p.nature}
-Habilidad: ${p.ability}
-Objeto: ${p.item}
-Movimientos: ${(p.moves||[]).join(" / ")}
-Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
-`;
-        try{
-          await navigator.clipboard.writeText(txt);
-          copyBtn.textContent = "✅ Copiado";
-          setTimeout(()=>copyBtn.textContent="Copiar ficha (texto)", 900);
-        } catch {
-          alert("No pude copiar al portapapeles (permisos del navegador).");
-        }
-      };
-    }
   }
 
   function classifyDefense(def1, def2){
-    // devuelve buckets por multiplicador para lo que te pega (atk types)
     const buckets = { "4":[], "2":[], "1":[], "0.5":[], "0.25":[], "0":[] };
     for(const atk of TYPES){
       const m = multDefAgainst(def1, def2, atk);
@@ -658,7 +664,6 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
   }
 
   function offensiveStrong(atk1, atk2){
-    // a qué defensas (mono tipo) le pegas 2x (o más) con ese tipo (mejor de dos si hay)
     const strong = [];
     for(const def of TYPES){
       const m1 = mult(atk1, def);
@@ -670,40 +675,50 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
   }
 
   function renderPokedex(){
-    subTitle.textContent = "Pokédex de tipos (elige Tipo 1 + Tipo 2)";
-    const opts = TYPES.map(t=>`<option value="${t}">${TYPE_LABEL[t]}</option>`).join("");
-
+    subTitle.textContent = "Pokédex de tipos (clic para elegir Tipo 1 y 2)";
     rightPane.innerHTML = `
       <div class="box">
         <h4>Pokédex — Calculadora de debilidades / resistencias</h4>
-        <div class="hint">Elige uno o dos tipos defensivos, y te muestro qué te pega 4x/2x, qué resistes (½/¼) y qué es inmune (0).</div>
+        <div class="hint">
+          Elige tipos haciendo clic en las etiquetas. Primer clic define <b>Tipo 1</b>, segundo clic define <b>Tipo 2</b>.
+          Clic sobre un tipo seleccionado lo quita. 
+        </div>
 
-        <div class="pokedexGrid" style="margin-top:10px">
-          <div>
-            <div class="hint" style="margin-bottom:6px">Tipo 1</div>
-            <select id="pd1">${opts}</select>
-          </div>
-          <div>
-            <div class="hint" style="margin-bottom:6px">Tipo 2 (opcional)</div>
-            <select id="pd2">
-              <option value="">—</option>
-              ${opts}
-            </select>
-          </div>
+        <div class="pickedLine">
+          <div class="pill2"><b>Tipo 1:</b> <span id="showT1">${pdType1 ? typeBadge(pdType1) : "<span class='hint'>—</span>"}</span></div>
+          <div class="pill2"><b>Tipo 2:</b> <span id="showT2">${pdType2 ? typeBadge(pdType2) : "<span class='hint'>—</span>"}</span></div>
+          <button class="ghost" id="clearTypes">Limpiar</button>
+        </div>
+
+        <div class="typePickWrap" id="typePickWrap">
+          ${TYPES.map(t=>`
+            <button class="typePick" data-t="${t}" aria-label="${TYPE_LABEL[t]}">
+              ${typeBadge(t)}
+            </button>
+          `).join("")}
         </div>
 
         <div id="pokedexOut" style="margin-top:12px"></div>
       </div>
     `;
 
-    const pd1 = document.getElementById("pd1");
-    const pd2 = document.getElementById("pd2");
-    pd1.value = "steel"; // default bonito
-    pd2.value = "";
+    const wrap = document.getElementById("typePickWrap");
+    const showT1 = document.getElementById("showT1");
+    const showT2 = document.getElementById("showT2");
 
-    const draw = ()=>{
-      const t1 = pd1.value;
-      const t2 = pd2.value || "";
+    function refreshPickStyles(){
+      wrap.querySelectorAll(".typePick").forEach(btn=>{
+        const t = btn.dataset.t;
+        btn.classList.toggle("selected1", t === pdType1);
+        btn.classList.toggle("selected2", t === pdType2);
+      });
+      showT1.innerHTML = pdType1 ? typeBadge(pdType1) : "<span class='hint'>—</span>";
+      showT2.innerHTML = pdType2 ? typeBadge(pdType2) : "<span class='hint'>—</span>";
+    }
+
+    function draw(){
+      const t1 = pdType1 || "steel";
+      const t2 = pdType2 || "";
       const buckets = classifyDefense(t1, t2);
 
       const mk = (title, multKey, subtitle) => `
@@ -728,10 +743,43 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
           </div>
         </div>
       `;
-    };
+    }
 
-    pd1.addEventListener("change", draw);
-    pd2.addEventListener("change", draw);
+    function pickType(t){
+      // Click sobre seleccionado => quitar
+      if(t === pdType1){ pdType1 = pdType2 || "steel"; pdType2 = ""; refreshPickStyles(); draw(); return; }
+      if(t === pdType2){ pdType2 = ""; refreshPickStyles(); draw(); return; }
+
+      // Si no hay tipo 1, set tipo 1
+      if(!pdType1){ pdType1 = t; refreshPickStyles(); draw(); return; }
+
+      // Si ya hay tipo 1 y no hay tipo 2 => set tipo 2
+      if(pdType1 && !pdType2){
+        if(t !== pdType1) pdType2 = t;
+        refreshPickStyles(); draw();
+        return;
+      }
+
+      // Si ya hay ambos, reemplazar tipo 2 (más práctico)
+      pdType2 = t === pdType1 ? "" : t;
+      refreshPickStyles();
+      draw();
+    }
+
+    wrap.addEventListener("click", (e)=>{
+      const btn = e.target.closest(".typePick");
+      if(!btn) return;
+      pickType(btn.dataset.t);
+    });
+
+    document.getElementById("clearTypes").addEventListener("click", ()=>{
+      pdType1 = "steel";
+      pdType2 = "";
+      refreshPickStyles();
+      draw();
+    });
+
+    refreshPickStyles();
     draw();
   }
 
@@ -793,5 +841,6 @@ Evolución: ${evo.length ? evo.join(" → ") : "(no disponible)"}
 </script>
 </body>
 </html>
+
 
 
